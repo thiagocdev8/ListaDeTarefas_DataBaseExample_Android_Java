@@ -7,17 +7,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-
+import android.widget.SimpleCursorAdapter.ViewBinder;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 
 import com.example.listadetarefas.db.TaskContract;
 import com.example.listadetarefas.db.TaskDBHelper;
@@ -26,12 +26,31 @@ public class MainActivity extends AppCompatActivity {
 
 
     private TaskDBHelper helper;
+
+    private Button button;
+
+    private Button buttonDelete;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         updateUI();
+
+        button = findViewById(R.id.button);
+
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adicionarItem(v);
+            }
+        });
+
+
+
     }
 
     private void updateUI() {
@@ -42,13 +61,26 @@ public class MainActivity extends AppCompatActivity {
                 new String[]{TaskContract.Columns._id, TaskContract.Columns.tarefa},
                 null, null, null, null, null);
 
+
         SimpleCursorAdapter listAdapter = new SimpleCursorAdapter(
                 this,
                 R.layout.celula,
                 cursor,
-                new String[] {TaskContract.Columns.tarefa},
-                new int[] {R.id.textoCelula}
+                new String[] {TaskContract.Columns.tarefa, TaskContract.Columns._id},
+                new int[] {R.id.textoCelula, R.id.buttonExcluir}, 0
         );
+
+        listAdapter.setViewBinder(new ViewBinder() {
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (view.getId() == R.id.buttonExcluir) {
+                    final long id = cursor.getLong(cursor.getColumnIndex(TaskContract.Columns._id));
+
+                    view.setOnClickListener(v -> apagarItem(id));
+                    return true;
+                }
+                return false;
+            }
+        });
         ListView listView = findViewById(R.id.listaDeTarefas);
         listView.setAdapter(listAdapter);
     }
@@ -88,19 +120,16 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    public void apagarItem(View view){
-        View v = (View) view.getParent();
-        TextView taskTextView = (TextView) v.findViewById(R.id.textoCelula);
-        String tarefa = taskTextView.getText().toString();
-
-        String sql = String.format("Delete FROM %s WHERE %s = '%s'",
-                TaskContract.Table,
-                TaskContract.Columns.tarefa,
-                tarefa);
-
+    public void apagarItem(long id) {
         helper = new TaskDBHelper(MainActivity.this);
         SQLiteDatabase sqlDB = helper.getWritableDatabase();
-        sqlDB.execSQL(sql);
+
+        sqlDB.delete(
+                TaskContract.Table,
+                TaskContract.Columns._id + "=?",
+                new String[]{String.valueOf(id)}
+        );
+
         updateUI();
     }
 }
