@@ -11,7 +11,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:gravity="center"
         android:text="TextView"
         android:textColor="@color/cardview_light_background"
         android:textSize="22sp"
@@ -24,8 +23,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="X"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="#F44336"
+        android:text="Remover"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
