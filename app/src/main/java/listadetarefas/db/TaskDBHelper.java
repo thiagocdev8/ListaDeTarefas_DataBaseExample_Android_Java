@@ -1,20 +1,22 @@
-package com.example.listadetarefas.db;
+package listadetarefas.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import kotlinx.coroutines.scheduling.Task;
 
-public class TaskDBHelper extends SQLiteOpenHelper{
+public class TaskDBHelper extends SQLiteOpenHelper
+{
 
-    public TaskDBHelper(Context context){
+    public TaskDBHelper(Context context)
+    {
         super(context, TaskContract.DB_Name, null, TaskContract.DB_Version);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(SQLiteDatabase db)
+    {
 
         String sqlQuerry = String.format("CREATE TABLE %s ("+ "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "%s TEXT)", TaskContract.Table, TaskContract.Columns.tarefa);
@@ -25,7 +27,8 @@ public class TaskDBHelper extends SQLiteOpenHelper{
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    {
         db.execSQL("DROP TABLE IF EXISTS " + TaskContract.Table);
     }
 }

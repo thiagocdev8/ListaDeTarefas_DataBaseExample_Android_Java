@@ -1,4 +1,4 @@
-package com.example.listadetarefas;
+package listadetarefas.example.com;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -12,39 +12,37 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.SimpleCursorAdapter.ViewBinder;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.listadetarefas.R;
+import listadetarefas.db.TaskContract;
+import listadetarefas.db.TaskDBHelper;
 
-import com.example.listadetarefas.db.TaskContract;
-import com.example.listadetarefas.db.TaskDBHelper;
-
-public class MainActivity extends AppCompatActivity {
-
-
-    private TaskDBHelper helper;
-
+public class MainActivity extends AppCompatActivity
+{
+    private TaskDBHelper taskDBHelper;
     private Button button;
 
-    private Button buttonDelete;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        updateUI();
+        UpdateUI();
 
         button = findViewById(R.id.button);
 
 
-        button.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 adicionarItem(v);
             }
         });
@@ -53,14 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateUI() {
-
-        helper = new TaskDBHelper(MainActivity.this);
-        SQLiteDatabase sqlDB = helper.getReadableDatabase();
+    private void UpdateUI()
+    {
+        taskDBHelper = new TaskDBHelper(MainActivity.this);
+        SQLiteDatabase sqlDB = taskDBHelper.getReadableDatabase();
         Cursor cursor = sqlDB.query(TaskContract.Table,
                 new String[]{TaskContract.Columns._id, TaskContract.Columns.tarefa},
                 null, null, null, null, null);
-
 
         SimpleCursorAdapter listAdapter = new SimpleCursorAdapter(
                 this,
@@ -70,9 +67,12 @@ public class MainActivity extends AppCompatActivity {
                 new int[] {R.id.textoCelula, R.id.buttonExcluir}, 0
         );
 
-        listAdapter.setViewBinder(new ViewBinder() {
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                if (view.getId() == R.id.buttonExcluir) {
+        listAdapter.setViewBinder(new ViewBinder()
+        {
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex)
+            {
+                if (view.getId() == R.id.buttonExcluir)
+                {
                     final long id = cursor.getLong(cursor.getColumnIndex(TaskContract.Columns._id));
 
                     view.setOnClickListener(v -> apagarItem(id));
@@ -85,24 +85,27 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listAdapter);
     }
 
-    public void adicionarItem(View view){
+    public void adicionarItem(View view)
+    {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Adicione uma tarefa");
-        builder.setMessage("O que você precisa fazer?");
+        AlertDialog.Builder alertAdicionarItem = new AlertDialog.Builder(this);
+        alertAdicionarItem.setTitle("Adicione uma tarefa");
+        alertAdicionarItem.setMessage("O que você precisa fazer?");
         final EditText inputfield = new EditText(this);
-        builder.setView(inputfield);
+        alertAdicionarItem.setView(inputfield);
 
 
-        builder.setPositiveButton("Adicionar",
-                new DialogInterface.OnClickListener() {
+        alertAdicionarItem.setPositiveButton("Adicionar",
+                new DialogInterface.OnClickListener()
+                {
                     @Override
-                    public void onClick(DialogInterface dialog, int i) {
+                    public void onClick(DialogInterface dialog, int i)
+                    {
                         String tarefa = inputfield.getText().toString();
                         Log.d("MainActivity", tarefa);
 
-                        helper = new TaskDBHelper(MainActivity.this);
-                        SQLiteDatabase db = helper.getWritableDatabase();
+                        taskDBHelper = new TaskDBHelper(MainActivity.this);
+                        SQLiteDatabase db = taskDBHelper.getWritableDatabase();
                         ContentValues values = new ContentValues();
 
                         values.clear();
@@ -111,25 +114,25 @@ public class MainActivity extends AppCompatActivity {
                         db.insertWithOnConflict(TaskContract.Table, null, values,
                                 SQLiteDatabase.CONFLICT_IGNORE);
 
-                        updateUI();
+                        UpdateUI();
                     }
                 });
 
-        builder.setNegativeButton("Cancelar", null);
+        alertAdicionarItem.setNegativeButton("Cancelar", null);
 
-        builder.create().show();
+        alertAdicionarItem.create().show();
     }
 
-    public void apagarItem(long id) {
-        helper = new TaskDBHelper(MainActivity.this);
-        SQLiteDatabase sqlDB = helper.getWritableDatabase();
+    public void apagarItem(long id)
+    {
+        taskDBHelper = new TaskDBHelper(MainActivity.this);
+        SQLiteDatabase sqlDB = taskDBHelper.getWritableDatabase();
 
         sqlDB.delete(
                 TaskContract.Table,
                 TaskContract.Columns._id + "=?",
                 new String[]{String.valueOf(id)}
         );
-
-        updateUI();
+        UpdateUI();
     }
 }
